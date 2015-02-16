@@ -19,20 +19,27 @@ $(document).ready(function(){
   }
   /*Button to throw test code in.*/
   TESTBTN.on('click',function(){
+    eventDetails.children().remove('li');
     /*Object containing Latitude and Longitude points*/
     var mapLatLongCordinates = Object.create(null);
     mapLatLongCordinates.LAT = 28.1338075;
     mapLatLongCordinates.LNG = -81.95501380000002;
     initialize(mapLatLongCordinates);
-    $.ajax({
-      url: 'templates/eventdetails.html'
-    }).done(function(returnedHTMLTemplate){
-      var holdEventHTMLTemplate = $(returnedHTMLTemplate);
-      holdEventHTMLTemplate.find('.eventPersonName').append('rawrs');
-      eventDetails.append(holdEventHTMLTemplate);
-      alert('hi');
-      console.log(returnedHTMLTemplate);
-    });
+    /*Returned data here.*/
+    var eventDetailsArray = new Array();
+    /**/
+    eventDetailsArray.push('Name:<li>' + '1' + '</li>');
+    eventDetailsArray.push('Name:<li>' + '1' + '</li>');
+    eventDetailsArray.push('Name:<li>' + '1' + '</li>');
+    eventDetailsArray.push('Name:<li>' + '1' + '</li>');
+    eventDetailsArray.push('Name:<li>' + '1' + '</li>');
+    eventDetailsArray.push('Name:<li>' + '1' + '</li>');
+
+    var countToDetailsMax = 0;
+    while(countToDetailsMax < eventDetailsArray.length){
+      eventDetails.append(eventDetailsArray[countToDetailsMax]);
+      countToDetailsMax++;
+    }
   });
 
 });
