@@ -27,6 +27,9 @@ $(document).ready(function(){
     $.ajax({
       url: 'templates/eventdetails.html'
     }).done(function(returnedHTMLTemplate){
+      var holdEventHTMLTemplate = $(returnedHTMLTemplate);
+      holdEventHTMLTemplate.find('.eventPersonName').append('rawrs');
+      eventDetails.append(holdEventHTMLTemplate);
       alert('hi');
       console.log(returnedHTMLTemplate);
     });
