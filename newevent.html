@@ -1,0 +1,25 @@
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Geocoding service</title>
+    <link rel="stylesheet" href="css/master.css" media="screen" title="no title" charset="utf-8">
+
+
+    <script type="text/javascript"
+     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDyH31E37Vz9zBOsY3bGHq8uEgl1v7-sQU">
+   </script>
+
+    <script src="js/newEvent.js"></script>
+
+  </head>
+  <body>
+    <div id="panel">
+      <input id="address" type="textbox" value="Tembhurkheda, Maharashtra, INDIA">
+      <input type="button" value="Geocode" onclick="convertAddressToLatLng()">
+      <div id="map-canvas">
+
+      </div>
+    </div>
+  </body>
+</html>
