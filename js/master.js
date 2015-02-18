@@ -1,45 +1,44 @@
 $(document).ready(function(){
-  /*TODO: On load, pull top 10 items close to school*/
-  var TESTBTN = $('#TESTBTN');
   var eventDetails = $('#eventDetails');
-  function initialize(mapLatLong) {
+  $.ajax({
+    url: globalServices.selectEvents,
+    type: "POST",
+    data: {
+      "maxEvents": 2
+    }
+  }).done(function(returnedJSON){
+    var latestEvents = JSON.parse(returnedJSON);
     /*Sets map options*/
     var mapOptions = {
-      center: {lat: mapLatLong.LAT, lng: mapLatLong.LNG},
-      zoom: 8
+      center: {lat: 28.1338075, lng: -81.95501380000002},
+      zoom: 11
     };
-    /*Places the google map in the map-canvas with the given options*/
+    /*Insert the inital map.*/
     var map = new google.maps.Map(document.getElementById('map-canvas'),
     mapOptions);
-    /*Inserts a pin or marker in a specfic latitude and longitude.*/
-    var marker = new google.maps.Marker({
-      position: {lat: mapLatLong.LAT, lng: mapLatLong.LNG},
-      map: map
-    });
-  }
-  /*Button to throw test code in.*/
-  TESTBTN.on('click',function(){
-    eventDetails.children().remove('li');
-    /*Object containing Latitude and Longitude points*/
-    var mapLatLongCordinates = Object.create(null);
-    mapLatLongCordinates.LAT = 28.1338075;
-    mapLatLongCordinates.LNG = -81.95501380000002;
-    initialize(mapLatLongCordinates);
-    /*Returned data here.*/
-    var eventDetailsArray = new Array();
-    /**/
-    eventDetailsArray.push('Name:<li>' + '1' + '</li>');
-    eventDetailsArray.push('Name:<li>' + '1' + '</li>');
-    eventDetailsArray.push('Name:<li>' + '1' + '</li>');
-    eventDetailsArray.push('Name:<li>' + '1' + '</li>');
-    eventDetailsArray.push('Name:<li>' + '1' + '</li>');
-    eventDetailsArray.push('Name:<li>' + '1' + '</li>');
-
-    var countToDetailsMax = 0;
-    while(countToDetailsMax < eventDetailsArray.length){
-      eventDetails.append(eventDetailsArray[countToDetailsMax]);
-      countToDetailsMax++;
+    /*Places the google map in the map-canvas with the given options*/
+    var markers = Array();
+    var infoWindowContent = Array();
+    for(var i = 0; i< latestEvents.length; i++){
+      markers.push([latestEvents[i][JSON2Text.location], parseFloat(latestEvents[i][JSON2Text.latitude]),parseFloat(latestEvents[i][JSON2Text.longitude])]);
+      infoWindowContent.push('<div class="info_content"><h3>' + latestEvents[i][JSON2Text.eventName] + '</h3><p>' + latestEvents[i][JSON2Text.eventDescription] +'</p></div>');
+    }
+    var infoWindow = new google.maps.InfoWindow(), marker, i;
+    // Loop through our array of markers & place each one on the map
+    for( i = 0; i < markers.length; i++ ) {
+      var position = new google.maps.LatLng(markers[i][1], markers[i][2]);
+      marker = new google.maps.Marker({
+        position: position,
+        map: map,
+        title: markers[i][0]
+      });
+      // Allow each marker to have an info window
+google.maps.event.addListener(marker, 'click', (function(marker, i) {
+    return function() {
+        infoWindow.setContent(infoWindowContent[i]);
+        infoWindow.open(map, marker);
+    }
+})(marker, i));
     }
   });
-
 });
