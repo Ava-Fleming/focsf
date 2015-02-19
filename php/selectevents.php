@@ -1,24 +1,21 @@
 <?php
-require_once('config.php');
-
+require_once('database.php');
+require_once('utility.php');
 // Check connection
-if (mysqli_connect_errno())
+$maxEvents = $_POST["maxEvents"];
+$returnedSelection = null;
+if ($result=mysqli_query($mysqlConnection, selectTopEvents($maxEvents)))
 {
-  echo "Failed to connect to MySQL: " . mysqli_connect_error();
-}
-
-$sql="CALL Select_NewestEvents(". $_POST["maxEvents"] .")";
-$returnedData = null;
-if ($result=mysqli_query($a,$sql))
-{
-  $datas = json_encode(mysqli_fetch_all($result));
-  echo $datas;
+  /*Pull All requested in the stored procedure. */
+  $returnedSelection = json_encode(mysqli_fetch_all($result));
+  echo $returnedSelection;
   // Free result set
   mysqli_free_result($result);
 }
 else{
-  echo "Nothing to do.";
+  /*Nothing can be displayed at this current time, please try again later.*/
+  echo json_encode(array("ErrorCode"=>$errorCodes.badSelectQueryCode));
 }
-
+unset($returnedSelection);
 mysqli_close($con);
 ?>
