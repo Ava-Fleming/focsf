@@ -17,5 +17,5 @@ else{
   echo json_encode(array("ErrorCode"=>$errorCodes.badSelectQueryCode));
 }
 unset($returnedSelection);
-mysqli_close($con);
+mysqli_close($mysqlConnection);
 ?>
