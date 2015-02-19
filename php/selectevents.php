@@ -7,7 +7,7 @@ $returnedSelection = null;
 if ($result=mysqli_query($mysqlConnection, selectTopEvents($maxEvents)))
 {
   /*Pull All requested in the stored procedure. */
-  $returnedSelection = json_encode(mysqli_fetch_all($result));
+  $returnedSelection = json_encode(mysqli_fetch_assoc($result));
   echo $returnedSelection;
   // Free result set
   mysqli_free_result($result);
