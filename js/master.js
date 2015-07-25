@@ -1,6 +1,6 @@
 $(document).ready(function(){
   serviceCall('POST', PHPServices.selectEvents, {
-    "maxEvents": 2
+    "maxEvents": 50
   })
   .done(function (selectedEvents) {
     /*Check if an error code is returned instead of the data.*/

@@ -13,11 +13,11 @@ function initializeMap(dataForMap){
   /*Places the google map in the map-canvas with the given options*/
   var markers = Array();
   var infoWindowContent = Array();
-  console.log(dataForMap.D.length);
+  console.log(dataForMap.length);
   for(var i = 0; i< dataForMap.length; i++){
-    console.log(dataForMap[i].Location);
+    console.log(dataForMap[i].Address);
     markers.push([dataForMap[i].Location, parseFloat(dataForMap[i].Latitude),parseFloat(dataForMap[i].Longitude)]);
-    infoWindowContent.push('<div class="info_content"><h3>' + dataForMap[i].PersonName + '</h3><p>' + dataForMap[i].EventDescription +'</p></div>');
+    infoWindowContent.push('<div class="info_content"><h3>' + dataForMap[i].CoordinatorName + '</h3><p>' + dataForMap[i].EventDescription +'</p></div>');
   }
   var infoWindow = new google.maps.InfoWindow(), marker, i;
   // Loop through our array of markers & place each one on the map
@@ -34,17 +34,16 @@ function initializeMap(dataForMap){
         infoWindow.setContent(infoWindowContent[i]);
         infoWindow.open(map, marker);
         /*Append text about point on map to event details list.*/
-        eventDetails.empty().append('<li>Name: ' + dataForMap[i].PersonName + '</li>');
-        eventDetails.append('<li>Event: ' + dataForMap[i].EventName + '</li>');
+        eventDetails.empty().append('<li>Name: ' + dataForMap[i].CoordinatorName + '</li>');
+        eventDetails.append('<li>Event: ' + dataForMap[i].EventTitle + '</li>');
         eventDetails.append('<li>Event Description: ' + dataForMap[i].EventDescription + '</li>');
-        eventDetails.append('<li>Event Location: ' + dataForMap[i].ocation + '</li>');
-        /*TODO convert to normal time.*/
-        eventDetails.append('<li>Event Start Time: ' + dataForMap[i].StartTime + '</li>');
-        eventDetails.append('<li>Event End Time: ' + dataForMap[i].EndTime + '</li>');
-        eventDetails.append('<li>Hours Given: ' + dataForMap[i].HoursGiven + '</li>');
+        eventDetails.append('<li>Event Location: ' + dataForMap[i].Address + '</li>');
+        /*TODO: convert to normal time.*/
+        eventDetails.append('<li>Event Start Time: ' + dataForMap[i].StartDate + '</li>');
+        eventDetails.append('<li>Event End Time: ' + dataForMap[i].EndDate + '</li>');
+        //TODO:  Fix hours
+        eventDetails.append('<li>Hours Given: ' + 'Tacos' /*dataForMap[i].HoursGiven*/ + '</li>');
         eventDetails.append('<li>Extra Notes: ' + dataForMap[i].ExtraNotes + '</li>');
-        console.log(dataForMap[i].StartTime);
-        dateTimeParse(dataForMap[i].StartTime);
       }
     })(marker, i));
   }
