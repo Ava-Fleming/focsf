@@ -2,20 +2,9 @@
 require_once('database.php');
 require_once('utility.php');
 // Check connection
-$maxEvents = $_POST["maxEvents"];
-$returnedSelection = null;
-if ($result=mysqli_query($mysqlConnection, selectTopEvents($maxEvents)))
-{
-  /*Pull All requested in the stored procedure. */
-  $returnedSelection = json_encode(mysqli_fetch_all($result));
-  echo $returnedSelection;
-  // Free result set
-  mysqli_free_result($result);
-}
-else{
-  /*Nothing can be displayed at this current time, please try again later.*/
-  echo json_encode(array("ErrorCode"=>$errorCodes.badSelectQueryCode));
-}
-unset($returnedSelection);
-mysqli_close($mysqlConnection);
-?>
+$maxEvents =  1; //$_POST["maxEvents"];
+$selectStatement = $mysqlConnection->prepare(SelectApprovedEvents()); //SelectApprovedEvents());
+$selectStatement->bindValue(':maxEvents', $maxEvents, PDO::PARAM_INT);
+/*Pull All requested in the stored procedure. */
+$selectStatement->execute();
+echo json_encode($selectStatement->fetchAll(PDO::FETCH_ASSOC));;
