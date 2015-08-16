@@ -1,6 +1,8 @@
 $(document).ready(function(){
   serviceCall('POST', PHPServices.selectEvents, {
-    "maxEvents": 50
+    'maxEvents': 50,
+    'selectedCategory': '',
+    'minStartDate': ''
   })
   .done(function (selectedEvents) {
     /*Check if an error code is returned instead of the data.*/
