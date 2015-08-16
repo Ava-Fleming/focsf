@@ -1,9 +1,9 @@
 -- phpMyAdmin SQL Dump
--- version 4.4.10
+-- version 4.4.13
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jul 25, 2015 at 04:13 AM
+-- Generation Time: Aug 16, 2015 at 08:15 PM
 -- Server version: 5.5.41-MariaDB
 -- PHP Version: 5.4.16
 
@@ -19,39 +19,61 @@ SET time_zone = "+00:00";
 --
 -- Database: `DevStumpPeck-Dev_focsf`
 --
-CREATE DATABASE IF NOT EXISTS `DevStumpPeck-Dev_focsf` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `DevStumpPeck-Dev_focsf`;
 
 DELIMITER $$
 --
 -- Procedures
 --
-DROP PROCEDURE IF EXISTS `SP_SelectAddressesForAutoComplete`$$
+CREATE DEFINER=`DevStumpPeck-Dev`@`localhost` PROCEDURE `SP_InsertNewEvent`(IN `INEventInfoID` INT(11), IN `INCoordinatorID` INT(11), IN `INAddressID` INT(11), IN `INExtraNotes` VARCHAR(500), IN `INManagerNotes` VARCHAR(500), IN `INStartDate` DATE, IN `INENDDATE` DATE)
+    READS SQL DATA
+SELECT LAST_INSERT_ID() FROM Addresses$$
+
 CREATE DEFINER=`DevStumpPeck-Dev`@`localhost` PROCEDURE `SP_SelectAddressesForAutoComplete`()
     NO SQL
     COMMENT 'Reads All addresses for autocompletion selection.'
-Select ID,Address
+Select ID,Category
 FROM Addresses
 WHERE status = 1$$
 
-DROP PROCEDURE IF EXISTS `SP_SelectApprovedEvents`$$
-CREATE DEFINER=`DevStumpPeck-Dev`@`localhost` PROCEDURE `SP_SelectApprovedEvents`(IN `maxEvents` INT(11))
+CREATE DEFINER=`DevStumpPeck-Dev`@`localhost` PROCEDURE `SP_SelectApprovedEvents`(IN `maxEvents` INT(11), IN `selectedCategory` VARCHAR(50), IN `minStartDate` DATE)
     NO SQL
-    COMMENT 'Returns all approved events after `NOW()`.'
-SELECT Event_Info_Core.EventTitle, Event_Info_Core.EventDescription,
-Coordinators.CoordinatorName, Coordinators.CoordinatorPhone, Coordinators.CoordinatorEmail,
-Addresses.Address, Addresses.Latitude, Addresses.Longitude,
-Event_Info.StartDate, Event_Info.EndDate, Event_Info.ExtraNotes
+    COMMENT 'Returns a requested set of approved events after `NOW()` or min.'
+SELECT
+	Event_Info_Core.EventTitle,
+    Event_Info_Core.EventDescription,
+    
+    Coordinators.CoordinatorName,
+    Coordinators.CoordinatorPhone,
+    Coordinators.CoordinatorEmail,
+    
+    Addresses.Address,
+    X(Addresses.LatLong) As Latitude,
+    Y(Addresses.LatLong) As Longitude,
+    
+    Event_Info.StartDate,
+    Event_Info.EndDate,
+    Event_Info.ExtraNotes
 
-FROM Event_Info
-Join Event_Info_Core
-on Event_Info_Core.ID = Event_Info.EventInfoID
-Join Coordinators 
-On Coordinators.ID = Event_Info.CoordinatorID
-Join Addresses
-On Addresses.ID = Event_Info.AddressID
-where Event_Info.StartDate > NOW()
-Limit maxEvents$$
+FROM 
+	Event_Info
+    
+    Join Event_Info_Core
+    on Event_Info_Core.ID = Event_Info.EventInfoID
+    
+    Join Coordinators 
+    On Coordinators.ID = Event_Info.CoordinatorID
+    
+    Join Addresses
+    On Addresses.ID = Event_Info.AddressID
+where
+	Event_Info.StartDate > IF(minStartDate <> '',minStartDate, NOW())
+    AND
+    Addresses.Category LIKE IF(selectedCategory <> '', selectedCategory, '%') 
+    AND
+    Event_Info.Status = 1
+    
+Limit
+	maxEvents$$
 
 DELIMITER ;
 
@@ -61,12 +83,11 @@ DELIMITER ;
 -- Table structure for table `Addresses`
 --
 
-DROP TABLE IF EXISTS `Addresses`;
 CREATE TABLE IF NOT EXISTS `Addresses` (
   `ID` int(11) NOT NULL,
   `Address` varchar(95) NOT NULL,
-  `Latitude` float(10,8) NOT NULL,
-  `Longitude` float(11,8) NOT NULL,
+  `LatLong` point NOT NULL,
+  `Category` varchar(50) NOT NULL,
   `Status` int(11) NOT NULL DEFAULT '0' COMMENT '-1: Denied; 0: Unapproved; 1: Approved.'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -76,7 +97,6 @@ CREATE TABLE IF NOT EXISTS `Addresses` (
 -- Table structure for table `Coordinators`
 --
 
-DROP TABLE IF EXISTS `Coordinators`;
 CREATE TABLE IF NOT EXISTS `Coordinators` (
   `ID` int(11) NOT NULL,
   `CoordinatorName` text NOT NULL,
@@ -90,7 +110,6 @@ CREATE TABLE IF NOT EXISTS `Coordinators` (
 -- Table structure for table `Event_Info`
 --
 
-DROP TABLE IF EXISTS `Event_Info`;
 CREATE TABLE IF NOT EXISTS `Event_Info` (
   `ID` int(11) NOT NULL,
   `EventInfoID` int(11) NOT NULL COMMENT 'ID for main event Details',
@@ -109,7 +128,6 @@ CREATE TABLE IF NOT EXISTS `Event_Info` (
 -- Table structure for table `Event_Info_Core`
 --
 
-DROP TABLE IF EXISTS `Event_Info_Core`;
 CREATE TABLE IF NOT EXISTS `Event_Info_Core` (
   `ID` int(11) NOT NULL,
   `EventTitle` text NOT NULL,
@@ -126,8 +144,7 @@ CREATE TABLE IF NOT EXISTS `Event_Info_Core` (
 ALTER TABLE `Addresses`
   ADD PRIMARY KEY (`ID`),
   ADD UNIQUE KEY `Address` (`Address`),
-  ADD UNIQUE KEY `Latitude` (`Latitude`),
-  ADD UNIQUE KEY `ID` (`ID`,`Address`,`Latitude`,`Longitude`);
+  ADD UNIQUE KEY `ID` (`ID`,`Address`,`LatLong`(25));
 
 --
 -- Indexes for table `Coordinators`
