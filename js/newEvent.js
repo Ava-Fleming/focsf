@@ -13,7 +13,7 @@ function initialize(mapLatLong) {
 }
 
   function convertAddressToLatLng() {
-    var address = '7007 N Socrum Loop Rd, Lakeland, FL 33809';//document.getElementById("address").value;
+    var address = '6939 ashbury dr. lakeland florida, Lakeland, FL 33809';//document.getElementById("address").value;
     var geocoder = new google.maps.Geocoder();
 
     geocoder.geocode( { 'address': address}, function(results, status) {

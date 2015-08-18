@@ -1,21 +1,55 @@
 <?php
 require_once('database.php');
 require_once('utility.php');
-// Check connection
-$maxEvents = $_POST["maxEvents"];
-$returnedSelection = null;
-if ($result=mysqli_query($mysqlConnection, selectTopEvents($maxEvents)))
-{
+if(!empty($_POST["maxEvents"])){
+  $maxEvents = $_POST["maxEvents"];
+  $selectedCategory = $_POST["selectedCategory"];
+  $minStartDate = $_POST["minStartDate"];
+  $selectStatement = $mysqlConnection->prepare(SelectApprovedEvents()); //SelectApprovedEvents());
+  $selectStatement->bindValue(':maxEvents', $maxEvents, PDO::PARAM_INT);
+  $selectStatement->bindValue(':selectedCategory', $selectedCategory, PDO::PARAM_INT);
+  $selectStatement->bindValue(':minStartDate', $minStartDate, PDO::PARAM_INT);
   /*Pull All requested in the stored procedure. */
-  $returnedSelection = json_encode(mysqli_fetch_all($result));
-  echo $returnedSelection;
-  // Free result set
-  mysqli_free_result($result);
+  $selectStatement->execute();
+  echo json_encode($selectStatement->fetchAll(PDO::FETCH_ASSOC));;
 }
-else{
-  /*Nothing can be displayed at this current time, please try again later.*/
-  echo json_encode(array("ErrorCode"=>$errorCodes.badSelectQueryCode));
-}
-unset($returnedSelection);
-mysqli_close($mysqlConnection);
-?>
+
+/*
+STORED PROCEDURE:
+SELECT
+	Event_Info_Core.EventTitle,
+    Event_Info_Core.EventDescription,
+
+    Coordinators.CoordinatorName,
+    Coordinators.CoordinatorPhone,
+    Coordinators.CoordinatorEmail,
+
+    Addresses.Address,
+    X(Addresses.LatLong) As Latitude,
+    Y(Addresses.LatLong) As Longitude,
+
+    Event_Info.StartDate,
+    Event_Info.EndDate,
+    Event_Info.ExtraNotes
+
+FROM
+	Event_Info
+
+    Join Event_Info_Core
+    on Event_Info_Core.ID = Event_Info.EventInfoID
+
+    Join Coordinators
+    On Coordinators.ID = Event_Info.CoordinatorID
+
+    Join Addresses
+    On Addresses.ID = Event_Info.AddressID
+where
+	Event_Info.StartDate > IF(minStartDate <> '',minStartDate, NOW())
+    AND
+    Addresses.Category LIKE IF(selectedCategory <> '', selectedCategory, '%')
+    AND
+    Event_Info.Status = 1
+
+Limit
+	maxEvents
+*/
