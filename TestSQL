@@ -1,0 +1,21 @@
+INSERT INTO `DevStumpPeck-Dev_focsf`.`Addresses` (`ID`, `Address`, `LatLong`, `Category`, `Status`) VALUES (NULL, INAddress, GeomFromText('POINT('INLatitude INLongitude)'',0), INCategory, '0');
+SET @AddressID = (SELECT LAST_INSERT_ID());
+
+INSERT INTO `DevStumpPeck-Dev_focsf`.`Coordinators` (`ID`, `CoordinatorName`, `CoordinatorPhone`, `CoordinatorEmail`) VALUES (NULL, INCoordinatorName, INCoordinatorPhone, INCoordinatorEmail);
+SET @CoordinatorID = (SELECT LAST_INSERT_ID());
+
+INSERT INTO `DevStumpPeck-Dev_focsf`.`Event_Info_Core` (`ID`, `EventTitle`, `EventDescription`) VALUES (NULL, INEventTitle, INEventDescription);
+SET @EventInfoID = (SELECT LAST_INSERT_ID());
+
+
+INSERT INTO `Event_Info` (`ID`, `EventInfoID`, `CoordinatorID`, `AddressID`, `ExtraNotes`, `ManagerNotes`, `StartDate`, `EndDate`, `Status`) VALUES
+(NULL, @EventInfoID, @CoordinatorID, @AddressID, INExtraNotes, INManagerNotes, INStartDate, INEndDate, 0);
+
+SELECT @EventInfoID, @AddressID, @CoordinatorID;
+
+
+
+SET @AddressID = LAST_INSERT_ID("INSERT INTO `DevStumpPeck-Dev_focsf`.`Addresses` (`ID`, `Address`, `LatLong`, `Category`, `Status`) VALUES (NULL, INAddress, GeomFromText('POINT('INLatitude INLongitude)'',0), INCategory, '0');");
+
+
+SELECT LAST_INSERT_ID("INSERT INTO `DevStumpPeck-Dev_focsf`.`Addresses` (`ID`, `Address`, `LatLong`, `Category`, `Status`) VALUES (NULL, 'asdfz', GeomFromText('POINT(38.898748 -77.037684)',0), 'asdf', '0');")

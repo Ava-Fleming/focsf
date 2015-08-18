@@ -13,3 +13,43 @@ if(!empty($_POST["maxEvents"])){
   $selectStatement->execute();
   echo json_encode($selectStatement->fetchAll(PDO::FETCH_ASSOC));;
 }
+
+/*
+STORED PROCEDURE:
+SELECT
+	Event_Info_Core.EventTitle,
+    Event_Info_Core.EventDescription,
+
+    Coordinators.CoordinatorName,
+    Coordinators.CoordinatorPhone,
+    Coordinators.CoordinatorEmail,
+
+    Addresses.Address,
+    X(Addresses.LatLong) As Latitude,
+    Y(Addresses.LatLong) As Longitude,
+
+    Event_Info.StartDate,
+    Event_Info.EndDate,
+    Event_Info.ExtraNotes
+
+FROM
+	Event_Info
+
+    Join Event_Info_Core
+    on Event_Info_Core.ID = Event_Info.EventInfoID
+
+    Join Coordinators
+    On Coordinators.ID = Event_Info.CoordinatorID
+
+    Join Addresses
+    On Addresses.ID = Event_Info.AddressID
+where
+	Event_Info.StartDate > IF(minStartDate <> '',minStartDate, NOW())
+    AND
+    Addresses.Category LIKE IF(selectedCategory <> '', selectedCategory, '%')
+    AND
+    Event_Info.Status = 1
+
+Limit
+	maxEvents
+*/
